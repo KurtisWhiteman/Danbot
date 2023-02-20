@@ -20,7 +20,7 @@ for (const file of commandFiles) {
     bot.commands.set(command.name, command);
 }
 
-var version = '1.0.1';
+let version = '1.0.1';
 
 const PREFIX = '!';
 
@@ -36,7 +36,7 @@ bot.on('messageCreate', message => {
                     .split(/ +/)
                     .shift()
                     .toLowerCase();
-    console.log(`command is: ${command}`)
+    console.log(`command is: ${command}`);
 
     whichCommand(message, command);
 })
@@ -52,7 +52,7 @@ function whichCommand(message, command) {
         case "daily-cases":
             var file = fs.existsSync(`./src/files/` + command + `.json`);
             if (!file) {
-                console.log("NO FILE FOUND RETURNING FALSE")
+                console.log("NO FILE FOUND RETURNING FALSE");
             }
             bot.commands.get('getCovidStats').execute(message, command);
             return;

@@ -8,20 +8,20 @@ module.exports = {
   };
 
   async function checkForCovidData (command) {
-    var file = fs.existsSync(`./src/files/` + command + `.json`);
+    let file = fs.existsSync(`./src/files/` + command + `.json`);
     if (!file) {
-        console.log("NO FILE FOUND RETURNING FALSE")
+        console.log("NO FILE FOUND RETURNING FALSE");
         return false;
     }
     try {
         fs.readFile(`./src/files/` + command + `.json`, 'utf8' , (err, data) => {
             if (err) {
-            console.error(err)
-            return
+            console.error(err);
+            return;
             }
-            console.log("file read")
-            return data
-        })
+            console.log("file read");
+            return data;
+        });
     } catch (error) {
         console.error(error);
         // expected output: ReferenceError: nonExistentFunction is not defined
