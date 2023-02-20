@@ -19,7 +19,7 @@ module.exports = {
             console.error(err)
             return
             }
-            console.log("ttt")
+            console.log("file read")
             return data
         })
     } catch (error) {

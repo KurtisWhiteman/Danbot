@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { codeBlock } = require("discord.js");
 const fs = require('fs');
 
 
@@ -7,38 +8,22 @@ module.exports = {
   description: 'command to get covid stats',
   async execute(message, command) {
       console.log(command);
-      const covidMessage = await getCovidJSON(command);
-      console.log("sending message");
-      message.channel.send(covidMessage);
-      console.log("message sent");
+      getCovidJSON(command, message);
   }
 }
 
-async function getCovidJSON (command, filePath) {
+async function getCovidJSON (command, message) {
+  discordMessage = getCovidDataFile(function(result) {
+    console.log("discordMESSAGE");
 
-  flag = await checkForCovidData(command);
+    discordMessage = generateCovidMessage(result);
 
-  const fileData = await fs.readFile(`./src/files/` + command + `.json`, 'utf8');
+    message.channel.send(discordMessage);
+  });
 
-  if (fileData == false) {
-    console.log('no local data');
-    data = await getJSON();  // command waits until completion
-    covidStats = stateSwitch(data);
-    fs.writeFile("./src/files/" + command + ".json", JSON.stringify(data), function(err) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("saved data locally")
-      }
-    });
-  } else {
-    console.log('local data');
-    covidStats = fileData;
-  }
-
-  return generateCovidMessage(covidStats);
 }
 
+// public endpoint to get covid stats
 async function getJSON () {
     console.log("in getJSON")
       // Note the await keyword
@@ -47,8 +32,7 @@ async function getJSON () {
         console.log('a successful response');
         return response.data;
       })
-
-      return await data;
+      return data;
 }
 
 function getDateString (covidStats) {
@@ -94,32 +78,7 @@ function getVaccinationString (covidStats) {
   return ":syringe: Vaccination stats not yet available\n";
 }
 
-async function checkForCovidData (command) {
-  try {
-      const data = await getDataFromFile(`./src/files/` + command + `.json`);
-      return await data;
-  } catch (error) {
-      console.error(error);
-      // expected output: ReferenceError: nonExistentFunction is not defined
-      // Note - error messages will vary depending on browser
-  }
-}
-
-async function getDataFromFile (filePath) {
-  const fileData = await fs.readFile(filePath, 'utf8' , (err, data) => {
-      if (err) {
-      console.error(err);
-      return;
-      }
-      console.log("ttt");
-      console.log(JSON.parse(data)[0].ACTIVE_CNT);
-      return JSON.parse(data)[0];
-  })
-
-  return await fileData;
-}
-
-
+// Get stats based on state in command entered
 function stateSwitch(data) {
   switch (command) {
     case 'daily-cases':
@@ -171,5 +130,36 @@ function generateCovidMessage(covidStats) {
     return "Covid zero baby!";
   } else { 
     return "Yeah nah wait for the conference before asking mate, cheers.";
+  }
+}
+
+function getCovidDataFile (command) {
+  if (!fs.existsSync('./src/files/' + command + '.json')) {
+      console.log("NO FILE FOUND RETURNING FALSE");
+      newFileData = getJSON();
+      fs.writeFile("./src/files/" + command + ".json", JSON.stringify(newFileData), function(err) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Saved data")
+        }
+      });
+      return newFileData;
+  } else {
+    try {
+        currentFileData = fs.readFile(`./src/files/` + command + `.json`, 'utf8' , (err, data) => {
+            if (err) {
+            console.error(err)
+            return
+            }
+            console.log("file read")
+            return data;
+        })
+        return currentFileData;
+    } catch (error) {
+        console.error(error);
+        // expected output: ReferenceError: nonExistentFunction is not defined
+        // Note - error messages will vary depending on browser
+    }
   }
 }
